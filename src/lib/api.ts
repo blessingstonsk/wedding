@@ -1,15 +1,31 @@
 /**
- * Talks to the Netlify Functions in /netlify/functions. Those functions hold
- * the Supabase service key server-side — nothing secret ships to the browser.
- * Set VITE_BACKEND_ENABLED=true once the functions and database are configured.
+ * Guest wishes and the family dashboard, with two interchangeable backends:
+ *
+ *  • Supabase direct (GitHub Pages): set VITE_SUPABASE_URL and
+ *    VITE_SUPABASE_ANON_KEY. The database's security rules do the checking.
+ *  • Server functions (Netlify, or the local test backend in `npm run dev`):
+ *    set VITE_BACKEND_ENABLED=true. Secrets stay on the server.
+ *
+ * With neither set, the wishes section shows "will open soon".
  */
-export const backendEnabled = import.meta.env.VITE_BACKEND_ENABLED === 'true';
+import { directMode, supabase, toStatus } from './supabaseDirect';
+
+const serverMode = !directMode && import.meta.env.VITE_BACKEND_ENABLED === 'true';
+
+export const backendEnabled = directMode || serverMode;
+
+/** What the dashboard asks for when signing in. */
+export const adminLoginField: 'email' | 'username' = directMode ? 'email' : 'username';
 
 export interface Wish {
   id: string;
   name: string;
   message: string;
   created_at: string;
+}
+
+export interface AdminWish extends Wish {
+  approved: boolean;
 }
 
 export class ApiError extends Error {
@@ -26,31 +42,100 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     ...init,
     headers: { 'Content-Type': 'application/json', ...(init?.headers ?? {}) },
   });
-  if (res.headers.get('content-type')?.includes('text/csv')) {
-    if (!res.ok) throw new ApiError('Request failed', res.status);
-    return (await res.text()) as T;
-  }
   const body = await res.json().catch(() => ({}));
   if (!res.ok) throw new ApiError(body.error ?? 'Request failed', res.status);
   return body as T;
 }
 
-export const fetchWishes = () => request<{ wishes: Wish[] }>('wishes');
+/** Throw an ApiError for a Supabase error, so callers handle both backends alike. */
+function check(error: { message?: string; code?: string } | null) {
+  if (error) {
+    const e = toStatus(error);
+    throw new ApiError(e.message, e.status);
+  }
+}
 
-export const submitWish = (p: { name: string; message: string; deviceId: string; website?: string }) =>
-  request<{ ok: true; approved: boolean }>('wishes', { method: 'POST', body: JSON.stringify(p) });
+/* ── Guests ───────────────────────────────────────────────────────────── */
 
-/* Family dashboard — the browser sends the HttpOnly session cookie automatically. */
-export const adminRequest = <T,>(path: string, init?: RequestInit) => request<T>(`admin${path}`, init);
+export async function fetchWishes(): Promise<{ wishes: Wish[] }> {
+  if (!directMode) return request('wishes');
+  const db = await supabase();
+  const { data, error } = await db.from('approved_wishes').select('id, name, message, created_at');
+  check(error);
+  return { wishes: (data ?? []) as Wish[] };
+}
 
-export const adminSession = () => request<{ signedIn: boolean }>('admin/session');
+export async function submitWish(p: {
+  name: string;
+  message: string;
+  deviceId: string;
+  website?: string;
+}): Promise<{ ok: true; approved: boolean }> {
+  if (!directMode) return request('wishes', { method: 'POST', body: JSON.stringify(p) });
+  // Honeypot filled → pretend it worked so bots learn nothing.
+  if (p.website) return { ok: true, approved: false };
+  const db = await supabase();
+  const { error } = await db.from('wishes').insert({ name: p.name, message: p.message, device_id: p.deviceId });
+  check(error);
+  return { ok: true, approved: false };
+}
 
-export const adminLogin = (username: string, password: string) =>
-  request<{ ok: true }>('admin/login', { method: 'POST', body: JSON.stringify({ username, password }) });
+/* ── Family dashboard ─────────────────────────────────────────────────── */
 
-export const adminLogout = () => request<{ ok: true }>('admin/logout', { method: 'POST' });
+export async function adminSession(): Promise<{ signedIn: boolean }> {
+  if (!directMode) return request('admin/session');
+  const db = await supabase();
+  const { data } = await db.auth.getSession();
+  return { signedIn: Boolean(data.session) };
+}
 
-/** Anonymous per-browser id sent with each wish. */
+export async function adminLogin(user: string, password: string): Promise<{ ok: true }> {
+  if (!directMode) return request('admin/login', { method: 'POST', body: JSON.stringify({ username: user, password }) });
+  const db = await supabase();
+  const { error } = await db.auth.signInWithPassword({ email: user, password });
+  if (error) throw new ApiError(/rate|too many/i.test(error.message) ? 'Too many attempts' : 'Incorrect email or password', /rate|too many/i.test(error.message) ? 429 : 401);
+  return { ok: true };
+}
+
+export async function adminLogout(): Promise<void> {
+  if (!directMode) {
+    await request('admin/logout', { method: 'POST' });
+    return;
+  }
+  const db = await supabase();
+  await db.auth.signOut();
+}
+
+export async function adminListWishes(): Promise<AdminWish[]> {
+  if (!directMode) return (await request<{ wishes: AdminWish[] }>('admin?resource=wishes')).wishes;
+  const db = await supabase();
+  const { data: s } = await db.auth.getSession();
+  if (!s.session) throw new ApiError('Unauthorized', 401);
+  const { data, error } = await db
+    .from('wishes')
+    .select('id, name, message, approved, created_at')
+    .order('approved', { ascending: true })
+    .order('created_at', { ascending: false });
+  check(error);
+  return (data ?? []) as AdminWish[];
+}
+
+export async function adminModerate(id: string, action: 'approve' | 'delete'): Promise<void> {
+  if (!directMode) {
+    await request('admin', { method: 'POST', body: JSON.stringify({ resource: 'wishes', action, id }) });
+    return;
+  }
+  const db = await supabase();
+  // `count` tells us whether the database actually allowed the change.
+  const { error, count } =
+    action === 'approve'
+      ? await db.from('wishes').update({ approved: true }, { count: 'exact' }).eq('id', id)
+      : await db.from('wishes').delete({ count: 'exact' }).eq('id', id);
+  check(error);
+  if (!count) throw new ApiError('Unauthorized', 401);
+}
+
+/** Anonymous per-browser id sent with each wish (used for the rate limit). */
 export function deviceId(): string {
   const key = 'invite-device-id';
   try {

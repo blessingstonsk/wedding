@@ -1,18 +1,22 @@
 import { Check, Eye, EyeOff, Loader2, LogOut, RefreshCw, Trash2 } from 'lucide-react';
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
-import { adminLogin, adminLogout, adminRequest, adminSession, ApiError, backendEnabled } from '../../lib/api';
+import {
+  adminListWishes,
+  adminLogin,
+  adminLoginField,
+  adminLogout,
+  adminModerate,
+  adminSession,
+  ApiError,
+  backendEnabled,
+  type AdminWish,
+} from '../../lib/api';
 
-interface AdminWish {
-  id: string;
-  name: string;
-  message: string;
-  approved: boolean;
-  created_at: string;
-}
+const byEmail = adminLoginField === 'email';
 
 /**
- * Family-only dashboard at /admin. Sign in once with the family username and
- * password; the server then keeps this browser signed in for 30 days.
+ * Family-only dashboard at /admin. Sign in once (email on the live site,
+ * username locally) and this browser stays signed in until you sign out.
  */
 export default function AdminPanel() {
   const [status, setStatus] = useState<'checking' | 'signedOut' | 'signedIn'>('checking');
@@ -27,8 +31,7 @@ export default function AdminPanel() {
     setLoading(true);
     setError('');
     try {
-      const w = await adminRequest<{ wishes: AdminWish[] }>('?resource=wishes');
-      setWishes(w.wishes);
+      setWishes(await adminListWishes());
       setStatus('signedIn');
     } catch (e) {
       if (e instanceof ApiError && e.status === 401) setStatus('signedOut');
@@ -48,7 +51,7 @@ export default function AdminPanel() {
 
   const signIn = async (e: FormEvent) => {
     e.preventDefault();
-    if (!username.trim() || !password) return setError('Please enter your username and password.');
+    if (!username.trim() || !password) return setError(byEmail ? 'Please enter your email and password.' : 'Please enter your username and password.');
     setLoading(true);
     setError('');
     try {
@@ -60,7 +63,7 @@ export default function AdminPanel() {
         err instanceof ApiError && err.status === 429
           ? 'Too many attempts. Please wait 10 minutes and try again.'
           : err instanceof ApiError && err.status === 401
-            ? 'Incorrect username or password.'
+            ? (byEmail ? 'Incorrect email or password.' : 'Incorrect username or password.')
             : 'Sign-in is not available right now.',
       );
       setLoading(false);
@@ -76,7 +79,7 @@ export default function AdminPanel() {
   const moderate = async (id: string, action: 'approve' | 'delete') => {
     if (action === 'delete' && !confirm('Delete this wish permanently?')) return;
     try {
-      await adminRequest('', { method: 'POST', body: JSON.stringify({ resource: 'wishes', action, id }) });
+      await adminModerate(id, action);
       setWishes((ws) => (action === 'delete' ? ws.filter((w) => w.id !== id) : ws.map((w) => (w.id === id ? { ...w, approved: true } : w))));
     } catch (e) {
       if (e instanceof ApiError && e.status === 401) setStatus('signedOut');
@@ -109,14 +112,16 @@ export default function AdminPanel() {
         <form onSubmit={signIn} className="card mt-8 space-y-5 p-6" noValidate>
           <div>
             <label htmlFor="admin-username" className="label">
-              Username
+              {byEmail ? 'Email' : 'Username'}
             </label>
             <input
               id="admin-username"
+              type={byEmail ? 'email' : 'text'}
+              inputMode={byEmail ? 'email' : 'text'}
               className="field"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              autoComplete="username"
+              autoComplete={byEmail ? 'email' : 'username'}
               autoCapitalize="none"
               spellCheck={false}
             />
@@ -152,7 +157,9 @@ export default function AdminPanel() {
           <button className="btn-gold w-full" disabled={loading}>
             {loading && <Loader2 size={15} className="animate-spin" />} Sign in
           </button>
-          <p className="text-center text-xs text-cream/45">You’ll stay signed in on this device for 30 days.</p>
+          <p className="text-center text-xs text-cream/45">
+            {byEmail ? 'You’ll stay signed in on this device until you sign out.' : 'You’ll stay signed in on this device for 30 days.'}
+          </p>
         </form>
       </main>
     );

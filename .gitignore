@@ -1,0 +1,16 @@
+node_modules
+dist
+.netlify
+.env
+.env.local
+.env.*.local
+*.log
+.DS_Store
+.dev-data
+
+# Full-size originals (~180 MB). The site uses the web-sized copies in public/.
+/images/
+/audio/
+
+# Local editor/app settings
+.claude/

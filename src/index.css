@@ -1,0 +1,271 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Fallback palette — overwritten at runtime from weddingConfig.theme. */
+:root {
+  --c-wine-950: 42 6 13;
+  --c-wine-900: 61 10 20;
+  --c-wine-800: 85 17 29;
+  --c-wine-700: 110 26 40;
+  --c-wine-600: 138 37 53;
+  --c-gold: 212 175 106;
+  --c-gold-soft: 233 211 164;
+  --c-gold-deep: 169 130 63;
+  --c-cream: 246 235 221;
+  --c-blush: 237 194 180;
+  --c-rose: 178 58 72;
+  color-scheme: dark;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-tap-highlight-color: transparent;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+  /* Never allow sideways scrolling/zooming on phones, even mid-animation. */
+  html,
+  body {
+    overflow-x: clip;
+  }
+  body {
+    @apply bg-wine-950 font-sans text-cream antialiased;
+    background-image:
+      radial-gradient(1200px 600px at 50% -10%, rgb(var(--c-wine-700) / 0.55), transparent 70%),
+      radial-gradient(800px 500px at 100% 40%, rgb(var(--c-wine-800) / 0.5), transparent 70%),
+      radial-gradient(800px 500px at 0% 80%, rgb(var(--c-wine-800) / 0.45), transparent 70%);
+    background-attachment: fixed;
+  }
+  /* Fine paper grain */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0.07;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  #root {
+    position: relative;
+    z-index: 2;
+  }
+  ::selection {
+    background: rgb(var(--c-gold) / 0.35);
+  }
+  :focus-visible {
+    outline: 2px solid rgb(var(--c-gold));
+    outline-offset: 3px;
+    border-radius: 6px;
+  }
+  img {
+    max-width: 100%;
+  }
+}
+
+@layer components {
+  .eyebrow {
+    @apply text-[0.68rem] font-medium uppercase tracking-[0.32em] text-gold sm:text-xs;
+  }
+  .gold-text {
+    background: linear-gradient(100deg, #b98c45 0%, #f3dca4 30%, #d4af6a 50%, #f7e6bd 70%, #a9823f 100%);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .gold-text {
+      animation: shimmer 8s linear infinite;
+    }
+  }
+  .btn {
+    @apply inline-flex min-h-[44px] items-center justify-center gap-2 rounded-md px-5 py-2.5 text-xs font-medium uppercase tracking-[0.2em] transition duration-300 disabled:cursor-not-allowed disabled:opacity-50;
+  }
+  .btn-gold {
+    @apply btn text-wine-950 shadow-glow hover:-translate-y-0.5 hover:brightness-110;
+    background: linear-gradient(135deg, #f3dca4, #d4af6a 45%, #a9823f);
+  }
+  .btn-outline {
+    @apply btn border border-gold/50 text-gold-soft hover:border-gold hover:bg-gold/10;
+  }
+  .card {
+    @apply rounded-2xl border border-gold/20 bg-wine-900/70 shadow-card backdrop-blur-sm;
+  }
+  .frame {
+    @apply relative rounded-2xl border border-gold/30 p-2;
+  }
+  .frame::after {
+    content: '';
+    @apply pointer-events-none absolute inset-[5px] rounded-xl border border-gold/20;
+  }
+  .field {
+    @apply w-full rounded-lg border border-gold/25 bg-wine-950/60 px-4 py-3 text-cream placeholder:text-cream/35 transition focus:border-gold focus:outline-none focus:ring-2 focus:ring-gold/30;
+  }
+  /* A soft band of gold light that sweeps across a photo every few seconds. */
+  .img-shine::after,
+  .img-shine-hover::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(115deg, transparent 35%, rgb(255 236 190 / 0.28) 50%, transparent 65%);
+    transform: translateX(-120%);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .img-shine::after {
+      animation: img-shine 7s ease-in-out 2s infinite;
+    }
+    .img-shine-hover:hover::after,
+    .group:hover .img-shine-hover::after {
+      animation: img-shine 1.2s ease-out;
+    }
+  }
+  .label {
+    @apply mb-2 block text-xs font-medium uppercase tracking-[0.18em] text-gold-soft/90;
+  }
+}
+
+/* Cover photo: after the reveal, a slow film-style push-in and pull-back. */
+.kenburns {
+  transition: scale 1.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .kenburns {
+    animation: kenburns 11s ease-in-out 3.2s infinite alternate both;
+  }
+  .group:hover .kenburns,
+  .kenburns:hover {
+    scale: 1.08;
+  }
+}
+@keyframes kenburns {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.18);
+  }
+}
+
+/* Hearts and petals drifting up over the cover photo, swaying as they rise. */
+.riser {
+  opacity: 0;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .riser {
+    animation-name: rise;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+    animation-fill-mode: both;
+  }
+}
+@keyframes rise {
+  0% {
+    opacity: 0;
+    transform: translate(0, 10px) rotate(-10deg) scale(0.6);
+  }
+  12% {
+    opacity: 0.95;
+  }
+  35% {
+    transform: translate(14px, -32cqh) rotate(12deg) scale(0.9);
+  }
+  65% {
+    transform: translate(-12px, -62cqh) rotate(-8deg) scale(1);
+  }
+  85% {
+    opacity: 0.8;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(6px, -92cqh) rotate(10deg) scale(1.1);
+  }
+}
+
+/* Equaliser bars on the sound button while music plays. */
+@keyframes eq {
+  from {
+    transform: scaleY(0.35);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+
+/* Twinkling gold stars around the cover photo. */
+.sparkle {
+  opacity: 0;
+  transform: translate(-50%, -50%);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .sparkle {
+    animation: twinkle 4s ease-in-out infinite;
+  }
+}
+@keyframes twinkle {
+  0%,
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.3) rotate(0deg);
+  }
+  50% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1) rotate(90deg);
+  }
+}
+
+@keyframes img-shine {
+  0% {
+    transform: translateX(-120%);
+  }
+  30%,
+  100% {
+    transform: translateX(120%);
+  }
+}
+
+/*
+ * Print: only the invitation card is printed, in its real colours, filling an
+ * A5 page. margin: 0 also stops the browser adding its date/URL headers.
+ */
+.print-only {
+  display: none;
+}
+@media print {
+  @page {
+    size: A5 portrait;
+    margin: 0;
+  }
+  html,
+  body {
+    background: rgb(var(--c-wine-950)) !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  body::before,
+  .no-print {
+    display: none !important;
+  }
+  .print-card {
+    display: flex !important;
+    height: 100vh;
+    width: 100vw;
+    align-items: center;
+    justify-content: center;
+    break-inside: avoid;
+    background: rgb(var(--c-wine-950));
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .print-card img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+  }
+}

@@ -1,4 +1,4 @@
-import { CalendarDays, MapPin, Map as MapIcon, Navigation } from 'lucide-react';
+import { CalendarDays, Clock, MapPin, Map as MapIcon, Navigation } from 'lucide-react';
 import { useState } from 'react';
 import { weddingConfig, type Venue } from '../../config/weddingConfig';
 import { useI18n } from '../../lib/i18n';
@@ -40,18 +40,25 @@ function VenueCard({ venue, index }: { venue: Venue; index: number }) {
       </div>
       <div className="p-6 sm:p-8">
         <h3 className="font-display text-3xl text-gold-soft">{tx(venue.name)}</h3>
-        <p className="mt-3 flex gap-3 text-sm text-cream/75">
-          <MapPin size={16} className="mt-0.5 shrink-0 text-gold" aria-hidden="true" />
-          {tx(venue.address)}
-        </p>
-        {events.map((ev) => (
-          <p key={ev.id} className="mt-2 flex gap-3 text-sm text-cream/75">
-            <CalendarDays size={16} className="mt-0.5 shrink-0 text-gold" aria-hidden="true" />
-            <span>
-              <span className="text-cream">{tx(ev.name)}</span> — {formatDate(ev.start, lang)}, {formatTimeRange(ev.start, ev.end, lang)}
-            </span>
-          </p>
-        ))}
+        {/* Address, day and time each on their own line, with matching icons. */}
+        <ul className="mt-4 space-y-2.5 text-sm text-cream/75">
+          <li className="flex items-start gap-3">
+            <MapPin size={16} className="mt-0.5 shrink-0 text-gold" aria-hidden="true" />
+            <span>{tx(venue.address)}</span>
+          </li>
+          {events.map((ev) => [
+            <li key={`${ev.id}-day`} className="flex items-start gap-3">
+              <CalendarDays size={16} className="mt-0.5 shrink-0 text-gold" aria-hidden="true" />
+              <span>{formatDate(ev.start, lang)}</span>
+            </li>,
+            <li key={`${ev.id}-time`} className="flex items-start gap-3">
+              <Clock size={16} className="mt-0.5 shrink-0 text-gold" aria-hidden="true" />
+              <span>
+                <span className="text-cream">{tx(ev.name)}</span> · {formatTimeRange(ev.start, ev.end, lang)}
+              </span>
+            </li>,
+          ])}
+        </ul>
         <div className="mt-6 flex flex-col gap-2 sm:flex-row">
           <a href={directionsUrl(venue.mapsQuery, venue.mapsUrl)} target="_blank" rel="noopener noreferrer" className="btn-gold flex-1">
             <Navigation size={14} aria-hidden="true" />

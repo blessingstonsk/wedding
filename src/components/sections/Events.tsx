@@ -1,10 +1,10 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import { CalendarPlus, ChevronDown, Church, Clock, Heart, MapPin, Navigation, Shirt, Sparkles } from 'lucide-react';
+import { CalendarDays, CalendarPlus, ChevronDown, Church, Clock, Heart, MapPin, Navigation, Shirt, Sparkles } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { weddingConfig, type EventKind, type WeddingEvent } from '../../config/weddingConfig';
 import { useI18n } from '../../lib/i18n';
 import { directionsUrl, downloadIcs, googleCalendarUrl } from '../../lib/links';
-import { dateParts, formatTimeRange } from '../../lib/time';
+import { dateParts, formatDate, formatTimeRange } from '../../lib/time';
 import { Section, SectionHeading } from '../ui/Section';
 
 const icons: Record<EventKind, typeof Church> = {
@@ -93,26 +93,30 @@ function EventCard({ ev, index }: { ev: WeddingEvent; index: number }) {
         isMain ? 'border-gold/50 ring-1 ring-gold/30' : ''
       }`}
     >
-      <div className="flex items-start justify-between gap-4">
+      <div className="flex items-center justify-between gap-4">
         <div className="relative grid h-14 w-14 shrink-0 place-items-center rounded-full border border-gold/40 bg-wine-800 text-gold">
           <Icon size={24} strokeWidth={1.4} aria-hidden="true" />
           <span className="absolute inset-[-5px] rounded-full border border-dashed border-gold/25 motion-safe:group-hover:animate-[spin_12s_linear_infinite]" />
         </div>
-        <div className="text-right font-display leading-none text-gold-soft">
-          <span className="block text-4xl text-gold">{d.day}</span>
-          <span className="text-xs uppercase tracking-[0.25em]">
+        {/* Date badge: day number centred over month and year. */}
+        <div className="flex flex-col items-center font-display leading-none text-gold-soft">
+          <span className="text-4xl text-gold">{d.day}</span>
+          <span className="mt-1 text-xs uppercase tracking-[0.25em]">
             {d.month} {d.year}
           </span>
         </div>
       </div>
 
       <h3 className="mt-5 font-display text-3xl text-gold-soft">{tx(ev.name)}</h3>
+      {/* One detail per line, each with its icon, so day, time and place line up. */}
       <ul className="mt-4 space-y-2.5 text-sm text-cream/80">
-        <li className="flex gap-3">
+        <li className="flex items-start gap-3">
+          <CalendarDays size={16} className="mt-0.5 shrink-0 text-gold" aria-hidden="true" />
+          <span>{formatDate(ev.start, lang)}</span>
+        </li>
+        <li className="flex items-start gap-3">
           <Clock size={16} className="mt-0.5 shrink-0 text-gold" aria-hidden="true" />
-          <span>
-            {d.weekday} · {formatTimeRange(ev.start, ev.end, lang)}
-          </span>
+          <span>{formatTimeRange(ev.start, ev.end, lang)}</span>
         </li>
         <li className="flex gap-3">
           <MapPin size={16} className="mt-0.5 shrink-0 text-gold" aria-hidden="true" />

@@ -86,8 +86,8 @@ export const weddingConfig = {
       name: { en: 'Andrew', ta: 'ஆண்ட்ரூ' },
       subtitle: { en: '[Groom profession / qualification]', ta: '[மணமகன் பணி / கல்வி]' },
       parents: {
-        en: 'Son of [Mr. Groom Father] & [Mrs. Groom Mother]',
-        ta: '[திரு. மணமகன் தந்தை] – [திருமதி. மணமகன் தாய்] அவர்களின் மகன்',
+        en: 'Son of Mr. S. Athmanesan & Mrs. Brindha Athmanesan',
+        ta: 'திரு. S. ஆத்மநேசன் – திருமதி. பிருந்தா ஆத்மநேசன் அவர்களின் மகன்',
       },
       note: { en: '[Native place / grandparents — optional]', ta: '[சொந்த ஊர் — விருப்பம்]' },
       photo: '/images/photos/groom.jpg',
@@ -96,8 +96,8 @@ export const weddingConfig = {
       name: { en: 'Sharon', ta: 'ஷரோன்' },
       subtitle: { en: '[Bride profession / qualification]', ta: '[மணமகள் பணி / கல்வி]' },
       parents: {
-        en: 'Daughter of [Mr. Bride Father] & [Mrs. Bride Mother]',
-        ta: '[திரு. மணமகள் தந்தை] – [திருமதி. மணமகள் தாய்] அவர்களின் மகள்',
+        en: 'Daughter of Mr. A. Chandran Sangeetha Raj & Mrs. S. Helen Shanthi',
+        ta: 'திரு. A. சந்திரன் சங்கீத ராஜ் – திருமதி. S. ஹெலன் சாந்தி அவர்களின் மகள்',
       },
       note: { en: '[Native place / grandparents — optional]', ta: '[சொந்த ஊர் — விருப்பம்]' },
       photo: '/images/photos/bride.jpg',

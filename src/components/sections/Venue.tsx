@@ -26,7 +26,13 @@ function VenueCard({ venue, index }: { venue: Venue; index: number }) {
             allowFullScreen
           />
         ) : (
-          <img src={asset(venue.photo)} alt={tx(venue.name)} loading="lazy" className="aspect-[16/10] w-full object-cover" />
+          <img
+            src={asset(venue.photo)}
+            alt={tx(venue.name)}
+            loading="lazy"
+            style={{ objectPosition: venue.photoPosition }}
+            className="aspect-[16/10] w-full object-cover"
+          />
         )}
         <span className="absolute left-4 top-4 rounded-full border border-gold/40 bg-wine-950/80 px-3 py-1 text-[0.65rem] uppercase tracking-[0.2em] text-gold backdrop-blur">
           {tx(venue.label)}
@@ -47,7 +53,7 @@ function VenueCard({ venue, index }: { venue: Venue; index: number }) {
           </p>
         ))}
         <div className="mt-6 flex flex-col gap-2 sm:flex-row">
-          <a href={directionsUrl(venue.mapsQuery)} target="_blank" rel="noopener noreferrer" className="btn-gold flex-1">
+          <a href={directionsUrl(venue.mapsQuery, venue.mapsUrl)} target="_blank" rel="noopener noreferrer" className="btn-gold flex-1">
             <Navigation size={14} aria-hidden="true" />
             {t('getDirections')}
           </a>

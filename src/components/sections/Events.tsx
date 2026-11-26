@@ -136,7 +136,7 @@ function EventCard({ ev, index }: { ev: WeddingEvent; index: number }) {
 
       <div className="mt-6 flex flex-col gap-2 sm:flex-row">
         <CalendarMenu ev={ev} />
-        <a href={directionsUrl(ev.mapsQuery)} target="_blank" rel="noopener noreferrer" className="btn-gold flex-1 px-3">
+        <a href={directionsUrl(ev.mapsQuery, ev.mapsUrl)} target="_blank" rel="noopener noreferrer" className="btn-gold flex-1 px-3">
           <Navigation size={14} aria-hidden="true" />
           {t('directions')}
         </a>

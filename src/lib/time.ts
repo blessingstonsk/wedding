@@ -25,7 +25,9 @@ export function formatTime(iso: string, lang: Lang) {
   }).format(new Date(iso));
 }
 
-export function formatTimeRange(start: string, end: string, lang: Lang) {
+/** "4:30 pm – 6:00 pm", or "4:30 pm onwards" when there is no end time. */
+export function formatTimeRange(start: string, end: string | undefined, lang: Lang) {
+  if (!end) return lang === 'ta' ? `${formatTime(start, lang)} முதல்` : `${formatTime(start, lang)} onwards`;
   return `${formatTime(start, lang)} – ${formatTime(end, lang)}`;
 }
 

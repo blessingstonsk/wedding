@@ -34,11 +34,14 @@ export interface WeddingEvent {
   enabled: boolean;
   name: Localized;
   start: string;
-  end: string;
+  /** Leave out to show the start time as "… onwards". */
+  end?: string;
   venueName: Localized;
   address: Localized;
   /** Anything Google Maps understands: a place name, address or "lat,lng". */
   mapsQuery: string;
+  /** Optional exact Google Maps link (Share → Copy link); used for Directions. */
+  mapsUrl?: string;
   dressCode?: Localized;
   description?: Localized;
 }
@@ -49,9 +52,13 @@ export interface Venue {
   name: Localized;
   address: Localized;
   mapsQuery: string;
+  /** Optional exact Google Maps link (Share → Copy link); used for Directions. */
+  mapsUrl?: string;
   /** Optional embed URL from Google Maps → Share → Embed a map → copy the src. */
   mapEmbedUrl?: string;
   photo: string;
+  /** Which part of the photo stays in view in the card (CSS object-position). */
+  photoPosition?: string;
   eventIds: string[];
 }
 
@@ -104,8 +111,8 @@ export const weddingConfig = {
   },
 
   wedding: {
-    /** Start of the church ceremony — drives the countdown. [Confirm the time] */
-    date: '2027-01-20T10:00:00+05:30',
+    /** Start of the church ceremony — drives the countdown. */
+    date: '2027-01-20T16:30:00+05:30',
     timeZone: 'Asia/Kolkata',
     /** Shown on the countdown after the wedding has started. */
     marriedSince: true,
@@ -186,16 +193,14 @@ export const weddingConfig = {
       kind: 'ceremony',
       enabled: true,
       name: { en: 'Holy Matrimony', ta: 'திருமண ஆராதனை' },
-      // [Confirm the ceremony start and end time]
-      start: '2027-01-20T10:00:00+05:30',
-      end: '2027-01-20T11:30:00+05:30',
-      venueName: '[Church Name]',
-      address: '[Street, Area, City, State PIN]',
-      mapsQuery: '[Church Name, City]',
-      dressCode: { en: '[Dress code — e.g. Formal / Pastels]', ta: '[உடை — விருப்பம்]' },
+      start: '2027-01-20T16:30:00+05:30',
+      venueName: 'C.S.I. Christ Church, Ambattur',
+      address: 'M.T.H. Road, OT Bus Stand, Ambattur, Chennai, Tamil Nadu 600053',
+      mapsQuery: 'C.S.I. Christ Church, M.T.H. Road, Ambattur, Chennai 600053',
+      mapsUrl: 'https://maps.app.goo.gl/UiU9sbDcBZb3DueW9',
       description: {
-        en: '[A line about the wedding service — e.g. Please be seated 15 minutes before the service begins.]',
-        ta: '[திருமண ஆராதனை பற்றிய விவரம்]',
+        en: 'Join us as we exchange our vows before God, our families and friends.',
+        ta: 'தேவனுக்கும் எங்கள் குடும்பத்தினருக்கும் நண்பர்களுக்கும் முன்பாக நாங்கள் திருமண உடன்படிக்கை செய்யும் இந்த ஆராதனையில் கலந்துகொள்ளுங்கள்.',
       },
     },
     {
@@ -203,37 +208,42 @@ export const weddingConfig = {
       kind: 'reception',
       enabled: true,
       name: { en: 'Reception', ta: 'வரவேற்பு' },
-      // [Confirm the reception date and time]
       start: '2027-01-20T18:30:00+05:30',
-      end: '2027-01-20T22:00:00+05:30',
-      venueName: '[Reception Venue Name]',
-      address: '[Street, Area, City, State PIN]',
-      mapsQuery: '[Reception Venue Name, City]',
-      dressCode: { en: '[Dress code — e.g. Formal]', ta: '[உடை — விருப்பம்]' },
-      description: { en: '[Dinner, music and celebration with family and friends.]', ta: '[வரவேற்பு விவரம்]' },
+      venueName: 'MSK Diamond Mahal',
+      address: 'No 38/39, Saraswathi Main Road, Aarthi Nagar, Thirumullaivoyal, Avadi, Tamil Nadu 600062',
+      mapsQuery: 'MSK Diamond Mahal, Saraswathi Main Road, Thirumullaivoyal, Avadi 600062',
+      mapsUrl: 'https://maps.app.goo.gl/WdJgTUiD8FKZ4vXw9',
+      description: {
+        en: 'Dinner, music and celebration with family and friends.',
+        ta: 'குடும்பத்தினர் மற்றும் நண்பர்களுடன் விருந்து, இசை மற்றும் கொண்டாட்டம்.',
+      },
     },
-  ] satisfies WeddingEvent[],
+  ] as WeddingEvent[],
 
   /** One card per venue. Add a second entry for a separate reception venue. */
   venues: [
     {
       id: 'church',
       label: { en: 'The Church', ta: 'தேவாலயம்' },
-      name: '[Church Name]',
-      address: '[Street, Area, City, State PIN]',
-      mapsQuery: '[Church Name, City]',
+      name: 'C.S.I. Christ Church, Ambattur',
+      address: 'M.T.H. Road, OT Bus Stand, Ambattur, Chennai, Tamil Nadu 600053',
+      mapsQuery: 'C.S.I. Christ Church, M.T.H. Road, Ambattur, Chennai 600053',
+      mapsUrl: 'https://maps.app.goo.gl/UiU9sbDcBZb3DueW9',
       mapEmbedUrl: '',
-      photo: '/images/venue-1.svg',
+      photo: '/images/photos/church.jpg',
+      // Portrait photo: keep the tower and the "Christ Church" sign in the landscape card.
+      photoPosition: '50% 38%',
       eventIds: ['ceremony'],
     },
     {
       id: 'reception',
       label: { en: 'Reception Venue', ta: 'வரவேற்பு அரங்கம்' },
-      name: '[Reception Venue Name]',
-      address: '[Street, Area, City, State PIN]',
-      mapsQuery: '[Reception Venue Name, City]',
+      name: 'MSK Diamond Mahal',
+      address: 'No 38/39, Saraswathi Main Road, Aarthi Nagar, Thirumullaivoyal, Avadi, Tamil Nadu 600062',
+      mapsQuery: 'MSK Diamond Mahal, Saraswathi Main Road, Thirumullaivoyal, Avadi 600062',
+      mapsUrl: 'https://maps.app.goo.gl/WdJgTUiD8FKZ4vXw9',
       mapEmbedUrl: '',
-      photo: '/images/venue-2.svg',
+      photo: '/images/photos/mahal.jpg',
       eventIds: ['reception'],
     },
   ] satisfies Venue[],

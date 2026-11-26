@@ -4,6 +4,9 @@ import { localize } from './i18n';
 
 const toUtcStamp = (iso: string) => new Date(iso).toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
 
+/** Events shown as "… onwards" have no end; calendars still need one, so assume 2 hours. */
+const eventEnd = (ev: WeddingEvent) => ev.end ?? new Date(new Date(ev.start).getTime() + 2 * 3_600_000).toISOString();
+
 export const coupleTitle = () =>
   `${localize(weddingConfig.couple.groom.name, 'en')} & ${localize(weddingConfig.couple.bride.name, 'en')}`;
 
@@ -11,7 +14,7 @@ export function googleCalendarUrl(ev: WeddingEvent) {
   const params = new URLSearchParams({
     action: 'TEMPLATE',
     text: `${localize(ev.name, 'en')} · ${coupleTitle()}`,
-    dates: `${toUtcStamp(ev.start)}/${toUtcStamp(ev.end)}`,
+    dates: `${toUtcStamp(ev.start)}/${toUtcStamp(eventEnd(ev))}`,
     details: `${localize(ev.description, 'en')}\n\n${invitationUrl()}`,
     location: `${localize(ev.venueName, 'en')}, ${localize(ev.address, 'en')}`,
     ctz: weddingConfig.wedding.timeZone,
@@ -33,7 +36,7 @@ export function downloadIcs(ev: WeddingEvent) {
     `UID:${ev.id}-${toUtcStamp(ev.start)}@wedding-invitation`,
     `DTSTAMP:${toUtcStamp(new Date().toISOString())}`,
     `DTSTART:${toUtcStamp(ev.start)}`,
-    `DTEND:${toUtcStamp(ev.end)}`,
+    `DTEND:${toUtcStamp(eventEnd(ev))}`,
     `SUMMARY:${icsEscape(`${localize(ev.name, 'en')} · ${coupleTitle()}`)}`,
     `DESCRIPTION:${icsEscape(`${localize(ev.description, 'en')}\n${invitationUrl()}`)}`,
     `LOCATION:${icsEscape(`${localize(ev.venueName, 'en')}, ${localize(ev.address, 'en')}`)}`,
@@ -60,9 +63,12 @@ export function downloadBlob(blob: Blob, filename: string) {
   setTimeout(() => URL.revokeObjectURL(url), 1500);
 }
 
-/** Opens the Google Maps app on phones (universal link) or the website on desktop. */
-export function directionsUrl(query: string) {
-  return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(query)}`;
+/**
+ * Opens the Google Maps app on phones (universal link) or the website on desktop.
+ * An exact shared link from config (`mapsUrl`) is used when given.
+ */
+export function directionsUrl(query: string, mapsUrl?: string) {
+  return mapsUrl || `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(query)}`;
 }
 
 /** Key-less embed; a custom `mapEmbedUrl` from config takes precedence. */

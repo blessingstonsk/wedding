@@ -84,25 +84,27 @@ export const weddingConfig = {
   couple: {
     groom: {
       name: { en: 'Andrew', ta: 'ஆண்ட்ரூ' },
+      // A line break (\n) starts a new centred line on the card.
       subtitle: {
-        en: 'Managing Director, Rolf Harr Automats, CH-58',
-        ta: 'நிர்வாக இயக்குநர், Rolf Harr Automats, CH-58',
+        en: 'Managing Director\nRolf Harr Automats, CH-58',
+        ta: 'நிர்வாக இயக்குநர்\nRolf Harr Automats, CH-58',
       },
+      // One name per line; the "Son of" / "அவர்களின் மகன்" line is shown as a small label.
       parents: {
-        en: 'Son of Mr. S. Athmanesan & Mrs. Brindha Athmanesan',
-        ta: 'திரு. S. ஆத்மநேசன் – திருமதி. பிருந்தா ஆத்மநேசன் அவர்களின் மகன்',
+        en: 'Son of\nMr. S. Athmanesan\n&\nMrs. Brindha Athmanesan',
+        ta: 'திரு. S. ஆத்மநேசன்\n&\nதிருமதி. பிருந்தா ஆத்மநேசன்\nஅவர்களின் மகன்',
       },
       photo: '/images/photos/groom.jpg',
     } satisfies Person,
     bride: {
       name: { en: 'Sharon', ta: 'ஷரோன்' },
       subtitle: {
-        en: 'Junior Training Officer, Department of Employment and Training, Tamil Nadu',
-        ta: 'இளநிலை பயிற்சி அலுவலர், வேலைவாய்ப்பு மற்றும் பயிற்சித் துறை, தமிழ்நாடு',
+        en: 'Junior Training Officer\nDepartment of Employment and Training, Tamil Nadu',
+        ta: 'இளநிலை பயிற்சி அலுவலர்\nவேலைவாய்ப்பு மற்றும் பயிற்சித் துறை, தமிழ்நாடு',
       },
       parents: {
-        en: 'Daughter of Mr. A. Chandran Sangeetha Raj & Mrs. S. Helen Shanthi',
-        ta: 'திரு. A. சந்திரன் சங்கீத ராஜ் – திருமதி. S. ஹெலன் சாந்தி அவர்களின் மகள்',
+        en: 'Daughter of\nMr. A. Chandran Sangeetha Raj\n&\nMrs. S. Helen Shanthi',
+        ta: 'திரு. A. சந்திரன் சங்கீத ராஜ்\n&\nதிருமதி. S. ஹெலன் சாந்தி\nஅவர்களின் மகள்',
       },
       photo: '/images/photos/bride.jpg',
     } satisfies Person,

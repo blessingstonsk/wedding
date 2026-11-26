@@ -39,10 +39,38 @@ function PersonCard({ person, role, delay }: { person: Person; role: string; del
         </div>
       )}
       <h3 className="mt-6 font-display text-3xl uppercase tracking-[0.1em] text-gold-soft">{tx(person.name)}</h3>
-      {person.subtitle && <p className="mt-1 text-sm text-cream/60">{tx(person.subtitle)}</p>}
-      <p className="mt-4 font-display text-lg italic text-cream/90">{tx(person.parents)}</p>
+      {/* Job title, then the company on the next line. */}
+      {person.subtitle && <p className="mt-1 whitespace-pre-line text-sm leading-relaxed text-cream/60 [text-wrap:balance]">{tx(person.subtitle)}</p>}
+      <ParentsLines text={tx(person.parents)} />
       {person.note && <p className="mt-2 text-xs text-cream/50">{tx(person.note)}</p>}
     </Reveal>
+  );
+}
+
+/**
+ * Parents laid out like a printed invitation: one name per centred line,
+ * with "Son of" / "அவர்களின் மகன்" as a small gold label and "&" as a connector.
+ */
+function ParentsLines({ text }: { text: string }) {
+  const isLabel = (line: string) => /^(son|daughter) of$|அவர்களின்/i.test(line.trim());
+  return (
+    <div className="mt-5 flex flex-col items-center gap-1">
+      {text.split('\n').map((line, i) =>
+        isLabel(line) ? (
+          <p key={i} className="eyebrow text-[0.62rem]">
+            {line}
+          </p>
+        ) : line.trim() === '&' ? (
+          <p key={i} className="font-script text-xl leading-none text-gold" aria-label="and">
+            &amp;
+          </p>
+        ) : (
+          <p key={i} className="font-display text-lg italic leading-snug text-cream/90">
+            {line}
+          </p>
+        ),
+      )}
+    </div>
   );
 }
 

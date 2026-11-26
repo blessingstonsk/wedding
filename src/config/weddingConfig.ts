@@ -99,8 +99,8 @@ export const weddingConfig = {
     bride: {
       name: { en: 'Sharon', ta: 'ஷரோன்' },
       subtitle: {
-        en: 'Junior Training Officer\nDepartment of Employment and Training, Tamil Nadu',
-        ta: 'இளநிலை பயிற்சி அலுவலர்\nவேலைவாய்ப்பு மற்றும் பயிற்சித் துறை, தமிழ்நாடு',
+        en: 'Junior Training Officer\nDepartment of Employment and Training\nTamil Nadu',
+        ta: 'இளநிலை பயிற்சி அலுவலர்\nவேலைவாய்ப்பு மற்றும் பயிற்சித் துறை\nதமிழ்நாடு',
       },
       parents: {
         en: 'Daughter of\nMr. A. Chandran Sangeetha Raj\n&\nMrs. S. Helen Shanthi',

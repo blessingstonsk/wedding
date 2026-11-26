@@ -51,7 +51,7 @@ export function Family() {
   const { couple, content } = weddingConfig;
   return (
     <Section id="family" label={t('family')}>
-      <SectionHeading eyebrow={tx(content.eldersBlessing)} title={t('familyTitle')} sub={tx(content.familyMessage)} />
+      <SectionHeading title={t('familyTitle')} sub={tx(content.familyMessage)} />
       <div className="mx-auto grid max-w-4xl items-center gap-8 md:grid-cols-[1fr_auto_1fr]">
         <PersonCard person={couple.groom} role={t('groom')} delay={0} />
         <Reveal delay={0.15} className="text-center font-script text-6xl text-gold">

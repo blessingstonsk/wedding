@@ -137,10 +137,6 @@ export const weddingConfig = {
       en: '“A cord of three strands is not quickly broken.” — Ecclesiastes 4:12',
       ta: '“முப்புரிநூல் சீக்கிரமாய் அறாது.” — பிரசங்கி 4:12',
     },
-    eldersBlessing: {
-      en: 'With the blessings of [Grandparents’ names / family elders]',
-      ta: '[தாத்தா பாட்டி / குடும்பப் பெரியோர்] ஆசிகளுடன்',
-    },
     closing: {
       en: 'Your presence, love, and blessings will make our celebration truly special. We look forward to sharing this beautiful beginning with you.',
       ta: 'தங்கள் வருகையும் அன்பும் ஆசியும் எங்கள் விழாவை மேலும் சிறப்பாக்கும். இந்த அழகிய தொடக்கத்தை உங்களுடன் பகிர்ந்து கொள்ள ஆவலுடன் காத்திருக்கிறோம்.',
